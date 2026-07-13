@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#16294f">
+<title>Protocolos de Quirófano · Cirugía Solidaria</title>
+<!-- PWA -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Protocolos CS">
+<meta name="mobile-web-app-capable" content="yes">
+<style>
+  :root{
+    --navy:#16294f;
+    --navy-2:#26385f;
+    --accent:#2f6fed;
+    --bg:#f4f6fa;
+    --card:#ffffff;
+    --line:#e4e8f0;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --tag:#eef2fb;
+    --tag-text:#2f4f9e;
+    --danger:#c0392b;
+    --shadow:0 2px 10px rgba(22,41,79,.08);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  header{
+    position:sticky;top:0;z-index:20;background:var(--navy);color:#fff;
+    padding:calc(env(safe-area-inset-top) + 14px) 14px 14px;
+    box-shadow:0 2px 8px rgba(0,0,0,.15);
+    display:flex;align-items:center;gap:10px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+  .brand h1{font-size:17px;margin:0;font-weight:700;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .brand .sub{font-size:11px;opacity:.8;margin-top:3px;font-weight:400}
+  .hbtn{
+    display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.12);
+    border:0;color:#fff;width:38px;height:38px;border-radius:10px;cursor:pointer;flex:0 0 auto;
+  }
+  .hbtn.on{background:#2f6fed}
+  .back{display:none;background:rgba(255,255,255,.12)}
+  .search-wrap{padding:12px 16px 2px;background:var(--bg)}
+  .search{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);
+    border-radius:12px;padding:10px 12px;box-shadow:var(--shadow)}
+  .search input{border:0;outline:0;font-size:16px;width:100%;background:transparent;color:var(--text)}
+  .search svg{flex:0 0 auto;color:var(--muted)}
+  /* Tabs */
+  .tabs{display:flex;gap:8px;padding:12px 16px 2px;max-width:720px;margin:0 auto}
+  .tab{
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+    background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 8px;
+    cursor:pointer;box-shadow:var(--shadow);color:var(--navy);transition:transform .08s;
+  }
+  .tab:active{transform:scale(.98)}
+  .tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .tab .t-name{font-weight:700;font-size:14px;text-align:center;line-height:1.15}
+  .tab .t-count{font-size:11px;opacity:.75}
+  .list{padding:6px 16px 30px;max-width:720px;margin:0 auto}
+  .adminbar{max-width:720px;margin:10px auto 0;padding:0 16px}
+  .add-btn{
+    width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+    background:#eaf1ff;border:1.5px dashed #9db9f0;color:#1e50c8;font-weight:700;font-size:15px;
+    padding:13px;border-radius:14px;cursor:pointer;
+  }
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:12px;
+    box-shadow:var(--shadow);cursor:pointer;display:flex;align-items:center;gap:14px;transition:transform .08s}
+  .card:active{transform:scale(.985)}
+  .card .icon{flex:0 0 auto;width:46px;height:46px;border-radius:12px;background:var(--tag);
+    display:flex;align-items:center;justify-content:center;color:var(--navy)}
+  .card .meta{flex:1;min-width:0}
+  .card h2{font-size:16px;margin:0;font-weight:700;color:var(--navy)}
+  .card p{margin:3px 0 0;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card .chev{color:var(--muted);flex:0 0 auto}
+  .empty{text-align:center;color:var(--muted);padding:44px 20px;font-size:15px;line-height:1.5}
+  /* Detail */
+  #view-detail{display:none;max-width:720px;margin:0 auto;padding:0 16px 40px}
+  .detail-title{padding:18px 2px 6px;display:flex;align-items:flex-start;gap:12px}
+  .detail-title .dt-main{flex:1;min-width:0}
+  .detail-title h2{margin:0;font-size:22px;color:var(--navy);font-weight:800}
+  .detail-title .op-sub{color:var(--muted);font-size:13px;margin-top:4px}
+  .admin-actions{display:flex;gap:8px;margin:4px 2px 0}
+  .admin-actions button{flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;
+    padding:10px;font-weight:700;font-size:14px;cursor:pointer;color:var(--navy);display:flex;
+    align-items:center;justify-content:center;gap:6px}
+  .admin-actions .del{color:var(--danger);border-color:#f0c9c4}
+  .section{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-top:14px;
+    overflow:hidden;box-shadow:var(--shadow)}
+  .section-head{display:flex;align-items:center;gap:10px;padding:13px 15px;background:var(--navy);
+    color:#fff;font-weight:700;font-size:14px;letter-spacing:.3px;text-transform:uppercase}
+  .section-body{padding:6px 15px 12px}
+  .row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px;line-height:1.4}
+  .row:last-child{border-bottom:0}
+  .row .bullet{color:var(--accent);flex:0 0 auto;font-weight:700;margin-top:1px}
+  .row .txt{flex:1}
+  .note{display:block;font-size:13px;color:var(--tag-text);background:var(--tag);border-radius:8px;
+    padding:6px 9px;margin-top:6px}
+  .note::before{content:"✎ ";opacity:.7}
+  .disclaimer{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:12px;
+    padding:11px 13px;font-size:12.5px;line-height:1.45;margin-top:16px}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:26px 16px 40px}
+  /* Splash / pantalla de inicio */
+  #splash{position:fixed;inset:0;z-index:100;background:#ffffff;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:6px;transition:opacity .55s ease;
+    padding:24px;padding-top:calc(env(safe-area-inset-top) + 24px)}
+  #splash.hide{opacity:0;pointer-events:none}
+  #splash .logo-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;
+    animation:splashIn .7s ease both}
+  #splash .wordmark{font-size:34px;font-weight:800;color:var(--navy);letter-spacing:.3px;line-height:1}
+  #splash .tagline{font-size:13px;color:var(--muted);margin-top:2px;letter-spacing:.4px}
+  #splash .bar{width:120px;height:4px;border-radius:4px;background:#e4e8f0;overflow:hidden;margin-top:22px}
+  #splash .bar span{display:block;height:100%;width:40%;background:var(--navy);border-radius:4px;
+    animation:splashBar 1.4s ease-in-out infinite}
+  @keyframes splashIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @keyframes splashBar{0%{transform:translateX(-120%)}100%{transform:translateX(320%)}}
+  /* Toast sincronización */
+  #toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 18px);
+    transform:translateX(-50%) translateY(20px);background:#16294f;color:#fff;padding:11px 16px;
+    border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.25);
+    opacity:0;pointer-events:none;transition:all .3s;z-index:120;max-width:88%;text-align:center}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  #toast.ok{background:#15803d}
+  #toast.err{background:#c0392b}
+  /* Overlays */
+  .overlay{position:fixed;inset:0;z-index:50;background:rgba(15,23,42,.5);display:none;
+    align-items:flex-end;justify-content:center}
+  .overlay.show{display:flex}
+  .sheet{background:#fff;width:100%;max-width:720px;max-height:92vh;overflow:auto;
+    border-radius:18px 18px 0 0;padding:18px 16px calc(env(safe-area-inset-bottom) + 24px);
+    box-shadow:0 -6px 24px rgba(0,0,0,.2)}
+  .sheet h3{margin:2px 0 14px;color:var(--navy);font-size:19px}
+  .field{margin-bottom:13px}
+  .field label{display:block;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:5px}
+  .field input,.field select,.field textarea{
+    width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:16px;
+    font-family:inherit;background:#fff;color:var(--text);outline:none}
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
+  .field textarea{min-height:92px;resize:vertical;line-height:1.45}
+  .hint{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.4}
+  .sec-editor{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px;background:#fafbfe}
+  .sec-editor .se-top{display:flex;gap:8px;margin-bottom:10px}
+  .sec-editor .se-top .field{flex:1;margin-bottom:0}
+  .sec-editor .rm{align-self:flex-end;background:#fff;border:1px solid #f0c9c4;color:var(--danger);
+    border-radius:10px;padding:11px 12px;font-weight:700;cursor:pointer;flex:0 0 auto;height:44px;margin-bottom:0}
+  .add-sec{width:100%;background:#eef2fb;border:1px dashed #b9c6e6;color:#2f4f9e;font-weight:700;
+    padding:11px;border-radius:11px;cursor:pointer;font-size:14px;margin-bottom:6px}
+  .sheet-actions{display:flex;gap:10px;margin-top:8px;position:sticky;bottom:0;background:#fff;padding-top:10px}
+  .sheet-actions button{flex:1;border:0;border-radius:12px;padding:14px;font-weight:800;font-size:15px;cursor:pointer}
+  .btn-primary{background:var(--navy);color:#fff}
+  .btn-ghost{background:#eef1f6;color:var(--navy)}
+  .pw-sheet{max-width:420px;border-radius:18px;align-self:center;margin:auto}
+  .overlay.center{align-items:center}
+  .pw-err{color:var(--danger);font-size:13px;margin-top:6px;display:none}
+  .badge-admin{font-size:10px;background:#2f6fed;color:#fff;padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:middle}
+</style>
+</head>
+<body>
+
+<!-- PANTALLA DE INICIO -->
+<div id="splash">
+  <div class="logo-wrap">
+    <svg width="150" height="180" viewBox="0 0 130 180" fill="none" stroke="#16294f" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round" aria-label="Cirugía Solidaria">
+      <!-- Adulto -->
+      <circle cx="78" cy="40" r="8.5" fill="#16294f" stroke="none"/>
+      <path d="M78 48 L78 120"/>
+      <!-- Brazo levantado + línea alta hacia arriba -->
+      <path d="M78 58 L95 30 L101 6"/>
+      <!-- Brazo bajado hacia la mano del niño -->
+      <path d="M78 66 L58 92"/>
+      <!-- Piernas adulto -->
+      <path d="M78 120 L69 160"/>
+      <path d="M78 120 L87 160"/>
+      <!-- Niño -->
+      <circle cx="50" cy="96" r="6.5" fill="#16294f" stroke="none"/>
+      <path d="M50 103 L50 132"/>
+      <!-- Brazo del niño hacia la mano del adulto -->
+      <path d="M50 110 L58 92"/>
+      <!-- Piernas niño -->
+      <path d="M50 132 L43 160"/>
+      <path d="M50 132 L57 160"/>
+      <!-- MURCIA -->
+      <text x="34" y="176" font-family="-apple-system,Segoe UI,Roboto,sans-serif" font-size="8" letter-spacing="1.5" fill="#16294f" stroke="none">MURCIA</text>
+    </svg>
+    <div>
+      <div class="wordmark">Cirugía Solidaria</div>
+      <div class="tagline" style="text-align:center">PROTOCOLOS DE QUIRÓFANO</div>
+    </div>
+  </div>
+  <div class="bar"><span></span></div>
+</div>
+
+<div id="toast"></div>
+
+<header>
+  <button class="hbtn back" id="backBtn" aria-label="Volver">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
+  <div class="brand" id="brandGroup">
+    <svg id="logoMark" width="34" height="34" viewBox="0 0 512 512" aria-hidden="true">
+      <path d="M330 118 A150 150 0 1 1 300 116" fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round"/>
+      <path d="M300 122 A140 140 0 0 0 190 380" fill="none" stroke="#9cc8ec" stroke-width="8" stroke-linecap="round"/>
+      <path d="M300 190 h44 v46 h46 v44 h-46 v46 h-44 v-46 h-46 v-44 h46 z" fill="#9cc8ec" opacity=".85"/>
+      <path d="M150 392 q106 44 212 0" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round"/>
+      <circle cx="252" cy="150" r="20" fill="#ffffff"/>
+      <path d="M252 172 c-19 0 -30 14 -30 34 l0 178 c0 12 17 12 17 0 l0 -96 6 0 0 108 c0 13 18 13 18 0 l0 -108 6 0 0 96 c0 12 17 12 17 0 l0 -178 c0 -20 -11 -34 -34 -34 z" fill="#ffffff"/>
+      <path d="M270 214 L330 150" fill="none" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
+      <circle cx="182" cy="238" r="15" fill="#ffffff"/>
+      <path d="M182 254 c-15 0 -23 11 -23 26 l0 106 c0 10 13 10 13 0 l0 -70 5 0 0 84 c0 11 15 11 15 0 l0 -60 4 0 0 46 c0 10 13 10 13 0 l0 -106 c0 -15 -8 -26 -22 -26 z" fill="#ffffff"/>
+      <path d="M198 262 q26 -6 40 6" fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round"/>
+      <path d="M330 92 q10 34 44 44 q-34 10 -44 44 q-10 -34 -44 -44 q34 -10 44 -44 z" fill="#a9d3f0"/>
+    </svg>
+    <div>
+      <h1 id="brandTitle">Protocolos de Quirófano</h1>
+      <div class="sub">Cirugía Solidaria</div>
+    </div>
+  </div>
+  <button class="hbtn" id="lockBtn" aria-label="Editar (contraseña)">
+    <svg id="lockIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+  </button>
+</header>
+
+<!-- LISTA -->
+<div id="view-list">
+  <div class="tabs" id="tabs"></div>
+  <div class="search-wrap">
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="searchInput" type="search" placeholder="Buscar…" autocomplete="off">
+    </div>
+  </div>
+  <div class="adminbar" id="adminBar" style="display:none">
+    <button class="add-btn" id="addBtn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      Nuevo protocolo
+    </button>
+  </div>
+  <div class="list" id="listContainer"></div>
+</div>
+
+<!-- DETALLE -->
+<div id="view-detail"></div>
+
+<!-- OVERLAY CONTRASEÑA -->
+<div class="overlay center" id="pwOverlay">
+  <div class="sheet pw-sheet">
+    <h3>Desbloquear edición</h3>
+    <div class="field">
+      <label for="pwInput">Contraseña</label>
+      <input id="pwInput" type="password" placeholder="Introduce la contraseña" autocomplete="off">
+      <div class="pw-err" id="pwErr">Contraseña incorrecta.</div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn-ghost" id="pwCancel">Cancelar</button>
+      <button class="btn-primary" id="pwOk">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- OVERLAY EDITOR -->
+<div class="overlay" id="editorOverlay">
+  <div class="sheet" id="editorSheet"></div>
+</div>
+
+<script>
+/* =====================================================================
+   Protocolos Cirugía Solidaria — datos base (semilla)
+   ===================================================================== */
+const CATS = [
+  {id:"quirurgico", nombre:"Protocolos quirúrgicos", corto:"Quirúrgicos", icon:"op"},
+  {id:"anestesia",  nombre:"Anestesia",              corto:"Anestesia",  icon:"anest"}
+];
+
+const SEED = [
+  {id:"vesicula-lap",cat:"quirurgico",nombre:"Vesícula laparoscópica",resumen:"Colecistectomía laparoscópica · General · CGD",secciones:[
+    {head:"Anestesia",icon:"anest",items:["General"]},
+    {head:"Posición",icon:"pos",items:["Decúbito supino, piernas abiertas sin perneras y brazos en cruz"]},
+    {head:"Instrumental / Material",icon:"instr",items:["Equipo Estómago","Caja de laparoscopia","Óptica 0º"]},
+    {head:"Fungible",icon:"fung",items:["Hoja de bisturí nº 11","Sábana grande fenestrada","Sábana grande","Bisturí eléctrico","Sistema de aspiración","SSF 500 con sistema de lavado de 2 vías","Cazamariposas","Trócares Hasson (1), nº 11 (1) y nº 5 (2)","Suero caliente","Endoclinch","Funda de cámara","Endoclip","1 paquete de gasas","1 paquete de compresas","Apósitos o Hypafix","Hemolok y cargas (tener preparadas)","Aguja de Veres"]},
+    {head:"Sutura",icon:"sut",items:[{t:"Piel: Vicryl 2/0 (triangular)",note:"grapadora en Sáhara"},{t:"Vicryl nº 1 anzuelo",note:"Sí Hasson (trócar)"},"Seda nº 0 triangular (si penrose)"]}
+  ]},
+  {id:"colecistectomia-abierta",cat:"quirurgico",nombre:"Colecistectomía abierta",resumen:"Colecistectomía abierta · General",secciones:[
+    {head:"Anestesia",icon:"anest",items:["Anestesia general"]},
+    {head:"Posición",icon:"pos",items:["Decúbito supino con piernas juntas y brazos en cruz"]},
+    {head:"Instrumental",icon:"instr",items:["Equipo Estómago"]},
+    {head:"Fungible",icon:"fung",items:["Sábana grande fenestrada","1 paquete de gasas (contaje)","2 paquetes de compresas (contaje)","Bisturí eléctrico","Hoja de bisturí nº 23/22","Sistema de aspiración + yankauer","Suero tibio",{t:"Surgicel",note:"hemostático"},"Pistola ligaclip mediana y pequeña","Penrose (drenaje si precisa)","Apósito + Hypafix compresivo"]},
+    {head:"Sutura",icon:"sut",items:["Ligadura seda 2/0","PDS 3/0 cilíndrico para intestino","PDS 3/0 cilíndrico con aguja de 17 y 23 mm para punto transfixivo","Seda 0 triangular para drenaje",{t:"Piel: Vicryl rapid 2/0 (triangular)",note:"grapadora de piel solo en Sáhara"}]}
+  ]},
+  {id:"tiroidectomia",cat:"quirurgico",nombre:"Tiroidectomía",resumen:"Tiroidectomía · General (con neuroestimulador)",secciones:[
+    {head:"Anestesia",icon:"anest",items:[{t:"General, tubo endotraqueal especial del NIM (neuroestimulador)",note:"si se hace con neuroestimulador"}]},
+    {head:"Posición",icon:"pos",items:["Decúbito supino con brazos pegados al cuerpo","Balón naranja en zona interescapular"]},
+    {head:"Instrumental",icon:"instr",items:["Equipo tiroides",{t:"Equipo neuroestimulador",note:"si procede"},"Sábana grande fenestrada y sin fenestrar"]},
+    {head:"Fungible",icon:"fung",items:["Bisturí eléctrico con punta reforzada con Steri-Strip","Bisturí frío nº 15","Rascador","1 paquete de compresas + 1 paquete de gasas","Tachosil / Surgicel (hemostático) si precisa","Drenaje Blake nº 10 si precisa","Focus + cable azul","Terminal del neuroestimulador","Electrodos"]},
+    {head:"Sutura",icon:"sut",items:["1 seda 0 triangular para campo","Vicryl 3-0 cilíndrico","1 Monocryl / Vicryl 3-0 triangular (intradérmica)","Ligaduras Vicryl 3/0","Steri-Strip"]}
+  ]},
+  {id:"hernia-umbilical",cat:"quirurgico",nombre:"Hernia umbilical",resumen:"Hernia umbilical · Raquídea / local + sedación",secciones:[
+    {head:"Anestesia",icon:"anest",items:["Raquídea o anestesia local + sedación"]},
+    {head:"Posición",icon:"pos",items:["Decúbito supino"]},
+    {head:"Instrumental",icon:"instr",items:["Equipo de hernia",{t:"Si infantil: equipo pediátrico",note:"Vicryl 4/0 (Δ), Monocryl 3/0 o PDS 3/0"}]},
+    {head:"Fungible",icon:"fung",items:["Sábana grande fenestrada","1 paquete de compresas","1 paquete de gasas","Hoja de bisturí nº 15","Bisturí eléctrico","Apósito + Hypafix compresivo"]},
+    {head:"Sutura",icon:"sut",items:[{t:"Prolene 0 cilíndrico / Monocryl 2/0 cilíndrico / PDS / Prolene 2/0 cilíndrico",note:"fijar malla"},{t:"Piel: Vicryl rapid 2/0 (triangular)",note:"grapadora solo en Sáhara"}]},
+    {head:"Notas",icon:"nota",items:["Faja abdominal en la cama del paciente después de la cirugía"]}
+  ]},
+  {id:"mastectomia-radical",cat:"quirurgico",nombre:"Mastectomía radical",resumen:"Mastectomía radical · General",secciones:[
+    {head:"Anestesia",icon:"anest",items:["General"]},
+    {head:"Posición",icon:"pos",items:["Decúbito supino + brazos en cruz"]},
+    {head:"Instrumental",icon:"instr",items:[{t:"Caja mama",note:"Focus"},{t:"Cable azul del armónico",note:"si hay linfadenectomía axilar"}]},
+    {head:"Fungible",icon:"fung",items:["Sábana grande (fenestrada y cerrada) + paño adicional con pegatina","4 compresas","1 paquete de gasas","Hoja de bisturí nº 15","Bisturí eléctrico","Aspirador + yankauer","Drenaje Blake nº 15 + pera grande o pequeña si precisa","Ligaclips medianos","Tachosil / Surgicel (hemostático) si precisa","Apósito + Hypafix compresivo"]},
+    {head:"Sutura",icon:"sut",items:["Vicryl 2/0 triangular si drenaje","PDS/Monocryl 3/0 y 4/0 triangular","PDS/Monocryl 2/0 cilíndrico","Ligadura Vicryl 2/0",{t:"Piel: Vicryl rapid 3/0 (triangular)",note:"grapadora solo en Sáhara"}]},
+    {head:"Notas",icon:"nota",items:["En linfadenectomía axilar: funda de cámara y guante (para personal de medicina nuclear); al terminar se desecha todo","Ganglio centinela según protocolo","Según pediatría o necesidad"]}
+  ]},
+  {id:"hernia-inguinal",cat:"quirurgico",nombre:"Hernia inguinal",resumen:"Hernia inguinal · Decúbito supino, brazos en cruz",secciones:[
+    {head:"Posición",icon:"pos",items:["Decúbito supino y brazos en cruz"]},
+    {head:"Instrumental",icon:"instr",items:["Equipo de hernia"]},
+    {head:"Fungible",icon:"fung",items:["Sábana fenestrada","2 paquetes de compresas","2 paquetes de gasas","Hoja de bisturí frío nº 23 o nº 22","Bisturí eléctrico","Malla","Apósito + Hypafix compresivo"]},
+    {head:"Sutura",icon:"sut",items:["Monocryl 2/0 / Prolene o PDS (2/0)","Ligadura Vicryl 2/0",{t:"Piel: Vicryl rapid 2/0 (triangular)",note:"grapadora de piel solo en Sáhara"}]}
+  ]},
+  {id:"eventracion",cat:"quirurgico",nombre:"Eventración",resumen:"Eventración · General o raquídea",secciones:[
+    {head:"Anestesia",icon:"anest",items:["General o raquídea"]},
+    {head:"Posición",icon:"pos",items:["Decúbito supino"]},
+    {head:"Instrumental",icon:"instr",items:["Equipo de hernia"]},
+    {head:"Fungible",icon:"fung",items:["Sábana fenestrada","1 paquete de compresas","1 paquete de gasas","Hoja de bisturí nº 15","Bisturí eléctrico","Grapadora de piel solo en Sáhara","Hypafix","Malla"]},
+    {head:"Sutura",icon:"sut",items:["Monocryl 2/0 triangular",{t:"Prolene 0 cilíndrico / Monocryl 2/0 cilíndrico",note:"para fijar malla"}]}
+  ]},
+  {id:"lipoma",cat:"quirurgico",nombre:"Lipoma",resumen:"Lipoma · Local / sedación / raquídea",secciones:[
+    {head:"Anestesia",icon:"anest",items:["Local / sedación / raquídea"]},
+    {head:"Instrumental",icon:"instr",items:[{t:"Equipo de hernia",note:"si es grande"},{t:"Equipo Lipoma",note:"si es pequeño"}]},
+    {head:"Fungible",icon:"fung",items:["Sábana fenestrada","1 paquete de compresas","1 paquete de gasas","Apósito + Hypafix compresivo"]},
+    {head:"Sutura",icon:"sut",items:[{t:"Vicryl / Monocryl 2/0 cilíndrico",note:"según localización"},"Piel: Monocryl triangular 2/0, 3/0 o 4/0"]}
+  ]},
+  {id:"anestesia-general",cat:"anestesia",nombre:"Anestesia general",resumen:"Comprobación de equipo y medicación",secciones:[
+    {head:"Comprobar",icon:"instr",items:["Respirador chequeado","Aspirador funcionando con sondas de aspiración","Mango de laringoscopio con pilas y diferentes palas para intubación","Tubos endotraqueales de varios tamaños preparados","Monitor multiparamétrico funcionando"]},
+    {head:"Medicación",icon:"fung",items:["Atropina: jeringa de 2 ml",{t:"Benzodiacepinas y opiáceos: jeringas de 10 ml",note:"Midazolam y Fentanilo"},{t:"Barbitúricos: jeringa de 20 ml",note:"Propofol o Etomidato"},{t:"Relajantes musculares: jeringa de 5 ml",note:"Rocuronio"},{t:"Despertar de anestesia: jeringa de 5 ml",note:"Sugammadex"}]}
+  ]},
+  {id:"anestesia-raquidea",cat:"anestesia",nombre:"Anestesia raquídea",resumen:"Mesa estéril y medicación",secciones:[
+    {head:"Preparar mesa estéril",icon:"instr",items:["Paño estéril sin pegatina para cubrir la mesa","Paño estéril con pegatina para cubrir zona de punción","Gasas","Catéter 25G con introductor para punción raquídea","Jeringa de 2 ml para anestesia local","Jeringa de 5 ml para anestesia raquídea","Aguja de cargar","Aguja subcutánea"]},
+    {head:"Medicación",icon:"fung",items:["Lidocaína 2%","Bupivacaína hiperbárica o isobárica",{t:"Fentanilo",note:"puede ponerse o no"}]}
+  ]}
+];
+
+/* ================= ICONOS ================= */
+const ICONS = {
+  anest:'<path d="M12 2v6M9 5h6M8 8h8v6a4 4 0 0 1-8 0z M12 18v4"/>',
+  pos:'<path d="M3 12h18M6 12V8a2 2 0 0 1 2-2h1M18 12v6M6 12v6"/><circle cx="9" cy="6" r="1.5"/>',
+  instr:'<path d="M4 4l7 7M9 11l-5 5a2 2 0 0 0 3 3l5-5M14 4l6 6-3 3-6-6z"/>',
+  fung:'<rect x="4" y="7" width="16" height="13" rx="2"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/>',
+  sut:'<path d="M4 18c4-8 12-8 16 0M6 15l-2 3M18 15l2 3M10 12l-1.5 2M14 12l1.5 2"/>',
+  nota:'<path d="M6 3h9l3 3v15H6z M14 3v4h4M9 12h6M9 16h4"/>',
+  op:'<path d="M12 2a5 5 0 0 1 5 5c0 2-1 3-1 5H8c0-2-1-3-1-5a5 5 0 0 1 5-5zM8 17h8M9 20h6"/>'
+};
+const ICON_OPTS=[["fung","Fungible / Material"],["instr","Instrumental"],["anest","Anestesia"],["pos","Posición"],["sut","Sutura"],["nota","Notas"],["op","General"]];
+function svgIcon(name,size,sw){
+  return '<svg width="'+(size||20)+'" height="'+(size||20)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="'+(sw||2)+'" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[name]||ICONS.op)+'</svg>';
+}
+
+/* ================= ESTADO / PERSISTENCIA ================= */
+/* ===== Sincronización en la nube (Netlify Blobs vía función) =====
+   Los protocolos se guardan en Netlify. Funciona automáticamente
+   cuando el sitio está publicado; en local (file://) usa la copia
+   del dispositivo. */
+const API_URL = '/api/protocolos';
+const cloudOn = () => location.protocol.startsWith('http');
+
+const STORE_KEY='cs_protocolos_v3';
+let DATA = loadData();
+let activeCat = 'quirurgico';
+let admin = sessionStorage.getItem('cs_admin')==='1';
+const PASSWORD='QUIROFANO1';
+
+function loadData(){
+  let d=null;
+  try{
+    const raw=localStorage.getItem(STORE_KEY);
+    if(raw){const parsed=JSON.parse(raw); if(Array.isArray(parsed)&&parsed.length)d=parsed;}
+  }catch(e){}
+  if(!d)return JSON.parse(JSON.stringify(SEED));
+  // Fusiona protocolos base que aún no estén guardados (p. ej. nuevos añadidos en la app)
+  const seen=new Set(d.map(p=>p.id));
+  let added=false;
+  SEED.forEach(s=>{ if(!seen.has(s.id)){ d.push(JSON.parse(JSON.stringify(s))); added=true; } });
+  if(added){ try{localStorage.setItem(STORE_KEY,JSON.stringify(d));}catch(e){} }
+  return d;
+}
+function saveData(){
+  try{localStorage.setItem(STORE_KEY,JSON.stringify(DATA));}catch(e){alert('No se pudo guardar en este dispositivo.');}
+}
+
+/* ----- Toast ----- */
+let toastT;
+function toast(msg,type){
+  const el=document.getElementById('toast');if(!el)return;
+  el.textContent=msg;
+  el.className='show'+(type===true?' ok':type===false?' err':'');
+  clearTimeout(toastT);toastT=setTimeout(()=>{el.className='';},2800);
+}
+
+/* ----- Nube (Supabase REST) ----- */
+async function cloudLoad(){
+  const r=await fetch(API_URL,{cache:'no-store'});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  return await r.json(); // array de protocolos o null
+}
+async function cloudSave(data){
+  const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({password:PASSWORD,data:data})});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+}
+async function cloudPush(){
+  if(!cloudOn())return;
+  toast('Sincronizando…');
+  try{ await cloudSave(DATA); toast('Cambios sincronizados',true); }
+  catch(e){ toast('Guardado en este móvil. Sin conexión para sincronizar.',false); }
+}
+async function initCloud(){
+  if(!cloudOn())return;
+  try{
+    const cloud=await cloudLoad();
+    if(cloud&&Array.isArray(cloud)&&cloud.length){
+      DATA=cloud; saveData();
+      renderTabs();
+      if(viewDetail.style.display==='none'||!viewDetail.style.display)renderList(searchInput.value);
+    }else{
+      await cloudSave(DATA); // primera vez: sembramos la nube
+    }
+  }catch(e){ /* sin conexión: seguimos con la copia local */ }
+}
+
+/* ================= RENDER TABS ================= */
+const tabsEl=document.getElementById('tabs');
+function renderTabs(){
+  tabsEl.innerHTML=CATS.map(c=>{
+    const n=DATA.filter(p=>p.cat===c.id).length;
+    return '<div class="tab '+(c.id===activeCat?'active':'')+'" onclick="setCat(\''+c.id+'\')">'+
+      '<span>'+svgIcon(c.icon,22,1.9)+'</span>'+
+      '<span class="t-name">'+escapeHtml(c.nombre)+'</span>'+
+      '<span class="t-count">'+n+' protocolo'+(n===1?'':'s')+'</span></div>';
+  }).join('');
+}
+function setCat(id){activeCat=id;renderTabs();renderList(searchInput.value);}
+
+/* ================= RENDER LISTA ================= */
+const listContainer=document.getElementById('listContainer');
+const searchInput=document.getElementById('searchInput');
+const adminBar=document.getElementById('adminBar');
+
+function renderList(filter){
+  const q=(filter||'').trim().toLowerCase();
+  let items=DATA.filter(p=>p.cat===activeCat);
+  if(q){
+    items=items.filter(p=>{
+      if(p.nombre.toLowerCase().includes(q)||(p.resumen||'').toLowerCase().includes(q))return true;
+      return (p.secciones||[]).some(s=>(s.items||[]).some(it=>{
+        const t=typeof it==='string'?it:(it.t+' '+(it.note||''));
+        return t.toLowerCase().includes(q);
+      }));
+    });
+  }
+  items=items.slice().sort((a,b)=>a.nombre.localeCompare(b.nombre,'es',{sensitivity:'base'}));
+  adminBar.style.display=admin?'block':'none';
+  if(!items.length){
+    const catName=CATS.find(c=>c.id===activeCat).nombre;
+    listContainer.innerHTML='<div class="empty">'+(q
+      ? 'No se encontraron protocolos para «'+escapeHtml(filter)+'».'
+      : 'Aún no hay protocolos en «'+escapeHtml(catName)+'».'+(admin?'<br>Pulsa «Nuevo protocolo» para añadir uno.':'<br>Desbloquea la edición (candado) para añadir uno.'))+'</div>';
+    return;
+  }
+  listContainer.innerHTML=items.map(p=>
+    '<div class="card" onclick="openProtocol(\''+p.id+'\')">'+
+      '<div class="icon">'+svgIcon(CATS.find(c=>c.id===p.cat).icon,24,1.8)+'</div>'+
+      '<div class="meta"><h2>'+escapeHtml(p.nombre)+'</h2><p>'+escapeHtml(p.resumen||'')+'</p></div>'+
+      '<div class="chev"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>'+
+    '</div>'
+  ).join('');
+}
+
+/* ================= DETALLE ================= */
+const viewList=document.getElementById('view-list');
+const viewDetail=document.getElementById('view-detail');
+const backBtn=document.getElementById('backBtn');
+const brandGroup=document.getElementById('brandGroup');
+let currentId=null;
+
+function openProtocol(id){
+  const p=DATA.find(x=>x.id===id);if(!p)return;currentId=id;
+  let html='<div class="detail-title"><div class="dt-main"><h2>'+escapeHtml(p.nombre)+'</h2><div class="op-sub">'+escapeHtml(p.resumen||'')+'</div></div></div>';
+  if(admin){
+    html+='<div class="admin-actions">'+
+      '<button onclick="openEditor(\''+p.id+'\')">'+svgIcon('nota',16,2)+' Editar</button>'+
+      '<button class="del" onclick="deleteProtocol(\''+p.id+'\')">'+
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg> Eliminar</button></div>';
+  }
+  (p.secciones||[]).forEach(s=>{
+    html+='<div class="section"><div class="section-head"><span>'+svgIcon(s.icon,17,2)+'</span>'+escapeHtml(s.head)+'</div><div class="section-body">';
+    (s.items||[]).forEach(it=>{
+      const txt=typeof it==='string'?it:it.t;
+      const note=typeof it==='object'?it.note:null;
+      html+='<div class="row"><span class="bullet">•</span><span class="txt">'+escapeHtml(txt)+(note?'<span class="note">'+escapeHtml(note)+'</span>':'')+'</span></div>';
+    });
+    html+='</div></div>';
+  });
+  html+='<div class="disclaimer">Guía de material orientativa para preparación de quirófano. Verifica siempre según cirujano, paciente y disponibilidad del centro.</div>';
+  html+='<footer>Cirugía Solidaria · Protocolos de quirófano</footer>';
+  viewDetail.innerHTML=html;
+  showDetail();window.scrollTo(0,0);
+}
+function showDetail(){viewList.style.display='none';viewDetail.style.display='block';backBtn.style.display='flex';brandGroup.style.display='none';}
+function showList(){viewDetail.style.display='none';viewList.style.display='block';backBtn.style.display='none';brandGroup.style.display='flex';renderTabs();renderList(searchInput.value);}
+backBtn.addEventListener('click',showList);
+
+/* ================= ADMIN / CONTRASEÑA ================= */
+const lockBtn=document.getElementById('lockBtn');
+const lockIcon=document.getElementById('lockIcon');
+const pwOverlay=document.getElementById('pwOverlay');
+const pwInput=document.getElementById('pwInput');
+const pwErr=document.getElementById('pwErr');
+
+function updateLock(){
+  if(admin){
+    lockBtn.classList.add('on');
+    lockIcon.innerHTML='<rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.9-1"/>';
+  }else{
+    lockBtn.classList.remove('on');
+    lockIcon.innerHTML='<rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>';
+  }
+}
+lockBtn.addEventListener('click',()=>{
+  if(admin){
+    if(confirm('¿Salir del modo edición?')){admin=false;sessionStorage.removeItem('cs_admin');updateLock();showList();}
+  }else{
+    pwErr.style.display='none';pwInput.value='';pwOverlay.classList.add('show');setTimeout(()=>pwInput.focus(),50);
+  }
+});
+document.getElementById('pwCancel').addEventListener('click',()=>pwOverlay.classList.remove('show'));
+document.getElementById('pwOk').addEventListener('click',tryPassword);
+pwInput.addEventListener('keydown',e=>{if(e.key==='Enter')tryPassword();});
+function tryPassword(){
+  if(pwInput.value===PASSWORD){
+    admin=true;sessionStorage.setItem('cs_admin','1');updateLock();
+    pwOverlay.classList.remove('show');renderList(searchInput.value);
+  }else{pwErr.style.display='block';}
+}
+
+/* ================= EDITOR ================= */
+const editorOverlay=document.getElementById('editorOverlay');
+const editorSheet=document.getElementById('editorSheet');
+let editing=null;
+
+function openEditor(id){
+  if(!admin)return;
+  if(id){
+    const p=DATA.find(x=>x.id===id);
+    editing=JSON.parse(JSON.stringify(p));
+  }else{
+    editing={id:null,cat:activeCat,nombre:'',resumen:'',secciones:[{head:'Fungible',icon:'fung',items:[]}]};
+  }
+  renderEditor();
+  editorOverlay.classList.add('show');
+}
+function itemsToText(items){
+  return (items||[]).map(it=>typeof it==='string'?it:(it.t+(it.note?' || '+it.note:''))).join('\n');
+}
+function textToItems(txt){
+  return (txt||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{
+    const i=l.indexOf(' || ');
+    return i>-1?{t:l.slice(0,i).trim(),note:l.slice(i+4).trim()}:l;
+  });
+}
+function renderEditor(){
+  const isNew=!editing.id;
+  let h='<h3>'+(isNew?'Nuevo protocolo':'Editar protocolo')+'</h3>';
+  h+='<div class="field"><label>Nombre</label><input id="ed-nombre" value="'+attr(editing.nombre)+'" placeholder="Ej: Apendicectomía"></div>';
+  h+='<div class="field"><label>Subtítulo / resumen</label><input id="ed-resumen" value="'+attr(editing.resumen)+'" placeholder="Ej: General · Decúbito supino"></div>';
+  h+='<div class="field"><label>Apartado</label><select id="ed-cat">'+CATS.map(c=>'<option value="'+c.id+'"'+(c.id===editing.cat?' selected':'')+'>'+escapeHtml(c.nombre)+'</option>').join('')+'</select></div>';
+  h+='<label style="display:block;font-size:13px;font-weight:700;color:var(--navy);margin:14px 0 6px">Secciones</label>';
+  editing.secciones.forEach((s,idx)=>{
+    h+='<div class="sec-editor">'+
+       '<div class="se-top">'+
+         '<div class="field" style="flex:1.4"><label>Título</label><input class="ed-shead" value="'+attr(s.head)+'" placeholder="Fungible"></div>'+
+         '<div class="field"><label>Icono</label><select class="ed-sicon">'+ICON_OPTS.map(o=>'<option value="'+o[0]+'"'+(o[0]===s.icon?' selected':'')+'>'+o[1]+'</option>').join('')+'</select></div>'+
+         '<button class="rm" onclick="rmSection('+idx+')" title="Quitar sección">✕</button>'+
+       '</div>'+
+       '<div class="field" style="margin-bottom:0"><label>Elementos (uno por línea)</label>'+
+         '<textarea class="ed-sitems" placeholder="Batas, guantes&#10;Bisturí eléctrico&#10;Surgicel || hemostático">'+escapeHtml(itemsToText(s.items))+'</textarea>'+
+         '<div class="hint">Para una nota manuscrita (✎) añade « || » al final. Ej: <em>Surgicel || hemostático</em></div>'+
+       '</div>'+
+       '</div>';
+  });
+  h+='<button class="add-sec" onclick="addSection()">+ Añadir sección</button>';
+  h+='<div class="sheet-actions"><button class="btn-ghost" onclick="closeEditor()">Cancelar</button><button class="btn-primary" onclick="saveEditor()">Guardar</button></div>';
+  editorSheet.innerHTML=h;
+}
+function captureEditor(){
+  editing.nombre=val('ed-nombre');
+  editing.resumen=val('ed-resumen');
+  editing.cat=document.getElementById('ed-cat').value;
+  const heads=editorSheet.querySelectorAll('.ed-shead');
+  const icons=editorSheet.querySelectorAll('.ed-sicon');
+  const items=editorSheet.querySelectorAll('.ed-sitems');
+  editing.secciones=Array.from(heads).map((h,i)=>({head:h.value.trim()||'Sección',icon:icons[i].value,items:textToItems(items[i].value)}));
+}
+function addSection(){captureEditor();editing.secciones.push({head:'',icon:'fung',items:[]});renderEditor();}
+function rmSection(i){captureEditor();editing.secciones.splice(i,1);if(!editing.secciones.length)editing.secciones.push({head:'',icon:'fung',items:[]});renderEditor();}
+function closeEditor(){editorOverlay.classList.remove('show');editing=null;}
+function saveEditor(){
+  captureEditor();
+  if(!editing.nombre.trim()){alert('Ponle un nombre al protocolo.');return;}
+  if(editing.id){
+    const idx=DATA.findIndex(x=>x.id===editing.id);
+    if(idx>-1)DATA[idx]=JSON.parse(JSON.stringify(editing));
+  }else{
+    editing.id=slugify(editing.nombre)+'-'+Date.now().toString(36);
+    DATA.push(JSON.parse(JSON.stringify(editing)));
+  }
+  saveData();
+  cloudPush();
+  activeCat=editing.cat;
+  const savedId=editing.id;
+  closeEditor();
+  renderTabs();renderList(searchInput.value);
+  openProtocol(savedId);
+}
+function deleteProtocol(id){
+  if(!admin)return;
+  const p=DATA.find(x=>x.id===id);if(!p)return;
+  if(!confirm('¿Eliminar el protocolo «'+p.nombre+'»? Esta acción no se puede deshacer.'))return;
+  DATA=DATA.filter(x=>x.id!==id);saveData();cloudPush();showList();
+}
+
+/* ================= UTIL ================= */
+function escapeHtml(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function attr(s){return escapeHtml(s).replace(/"/g,'&quot;');}
+function val(id){return document.getElementById(id).value.trim();}
+function slugify(s){return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40)||'protocolo';}
+
+searchInput.addEventListener('input',e=>renderList(e.target.value));
+document.getElementById('addBtn').addEventListener('click',()=>openEditor(null));
+
+/* Init */
+updateLock();renderTabs();renderList('');
+initCloud();
+
+/* Pantalla de inicio: se oculta tras ~1,8 s (o al tocar) */
+(function(){
+  const splash=document.getElementById('splash');
+  if(!splash)return;
+  let done=false;
+  function hide(){
+    if(done)return;done=true;
+    splash.classList.add('hide');
+    setTimeout(()=>{splash.parentNode&&splash.parentNode.removeChild(splash);},600);
+  }
+  setTimeout(hide,1800);
+  splash.addEventListener('click',hide);
+})();
+
+/* Service worker (offline). Solo funciona servido por http/https, no con file:// */
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
