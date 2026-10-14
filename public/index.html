@@ -56,16 +56,27 @@
   .search input{border:0;outline:0;font-size:16px;width:100%;background:transparent;color:var(--text)}
   .search svg{flex:0 0 auto;color:var(--muted)}
   /* Tabs */
-  .tabs{display:flex;gap:8px;padding:12px 16px 2px;max-width:720px;margin:0 auto}
+  .tabs{display:flex;gap:6px;padding:12px 12px 2px;max-width:720px;margin:0 auto}
   .tab{
-    flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
-    background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 8px;
+    flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;
+    background:#fff;border:1px solid var(--line);border-radius:13px;padding:10px 4px;
     cursor:pointer;box-shadow:var(--shadow);color:var(--navy);transition:transform .08s;
   }
   .tab:active{transform:scale(.98)}
   .tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
-  .tab .t-name{font-weight:700;font-size:14px;text-align:center;line-height:1.15}
-  .tab .t-count{font-size:11px;opacity:.75}
+  .tab .t-name{font-weight:700;font-size:12px;text-align:center;line-height:1.12}
+  .tab .t-count{font-size:10px;opacity:.75;white-space:nowrap}
+  /* Casillas de verificación (checklist) */
+  .row.chk{cursor:pointer;align-items:flex-start}
+  .row.chk .cbox{flex:0 0 auto;width:24px;height:24px;border:2px solid #c2cbdb;border-radius:7px;
+    display:flex;align-items:center;justify-content:center;color:#fff;background:#fff;transition:all .12s;margin-top:1px}
+  .row.chk .cbox svg{opacity:0}
+  .row.chk.on .cbox{background:#15803d;border-color:#15803d}
+  .row.chk.on .cbox svg{opacity:1}
+  .row.chk.on .txt{color:var(--muted)}
+  .chk-progress{display:inline-block;background:var(--tag);color:var(--tag-text);font-size:12px;font-weight:700;
+    padding:3px 11px;border-radius:20px;margin-top:7px}
+  .card .prog{color:#15803d;font-weight:700}
   .list{padding:6px 16px 30px;max-width:720px;margin:0 auto}
   .adminbar{max-width:720px;margin:10px auto 0;padding:0 16px}
   .add-btn{
@@ -277,7 +288,9 @@
    ===================================================================== */
 const CATS = [
   {id:"quirurgico", nombre:"Protocolos quirúrgicos", corto:"Quirúrgicos", icon:"op"},
-  {id:"anestesia",  nombre:"Anestesia",              corto:"Anestesia",  icon:"anest"}
+  {id:"anestesia",  nombre:"Anestesia",              corto:"Anestesia",  icon:"anest"},
+  {id:"fung_almacenable",   nombre:"Fungible almacenable",    corto:"Almacenable",  icon:"fung",  check:true},
+  {id:"fung_noalmacenable", nombre:"Fungible no almacenable", corto:"No almac.",    icon:"instr", check:true}
 ];
 
 const SEED = [
@@ -344,6 +357,85 @@ const SEED = [
   {id:"anestesia-raquidea",cat:"anestesia",nombre:"Anestesia raquídea",resumen:"Mesa estéril y medicación",secciones:[
     {head:"Preparar mesa estéril",icon:"instr",items:["Paño estéril sin pegatina para cubrir la mesa","Paño estéril con pegatina para cubrir zona de punción","Gasas","Catéter 25G con introductor para punción raquídea","Jeringa de 2 ml para anestesia local","Jeringa de 5 ml para anestesia raquídea","Aguja de cargar","Aguja subcutánea"]},
     {head:"Medicación",icon:"fung",items:["Lidocaína 2%","Bupivacaína hiperbárica o isobárica",{t:"Fentanilo",note:"puede ponerse o no"}]}
+  ]},
+
+  /* ===== FUNGIBLE ALMACENABLE (medicación / consumibles) ===== */
+  {id:"alm-baul-36-17",cat:"fung_almacenable",nombre:"Baúl 36 / 17 — Medicación",resumen:"Inyectable y tópico",secciones:[
+    {head:"Medicación",icon:"fung",items:[
+      {t:"Paracetamol 500",note:"29 uds"},{t:"Naloxona",note:"12 uds"},{t:"Flumacenilo",note:"11 uds"},
+      {t:"Mepivacaína 2%",note:"50 uds"},{t:"Neostigmina",note:"73 uds"},{t:"Bicarbonato",note:"nº 23"},
+      {t:"Sugammadex",note:"20 (2 ml) + 6 (10 ml)"},{t:"Lidocaína 2%",note:"28 uds"},{t:"Fenilefrina",note:"64 uds"},
+      {t:"Polaramine",note:"5 uds"},{t:"Labetalol",note:"5 uds"},{t:"Ketorolaco",note:"65 + 28"},
+      {t:"Bupivacaína hiperbárica",note:"60 uds"},{t:"Midazolam",note:"90 uds"},{t:"Sulfato de magnesio",note:"5 uds"},
+      {t:"Propofol",note:"37 uds"},{t:"Amchafibrin",note:"25 uds"},{t:"Sevoflurano",note:"6 uds"},
+      {t:"Mupirocina pomada",note:"8 uds"},{t:"Nobecutan",note:"1 ud"},{t:"Clorhexidina",note:"2 uds"},
+      {t:"Lubricante KY",note:"1 ud"}
+    ]}
+  ]},
+  {id:"alm-baul-34",cat:"fung_almacenable",nombre:"Baúl 34 — Medicación",resumen:"Antibióticos, colirios y aerosoles",secciones:[
+    {head:"Medicación",icon:"fung",items:[
+      {t:"Paracetamol 1 g IV",note:"17 uds"},{t:"Amoxicilina / Ác. clavulánico 2 g",note:"33 uds"},
+      {t:"Polaramine jarabe",note:"2 uds"},{t:"Oftalmolosa Cusi (pomada)",note:"1 ud · CAD 28"},
+      {t:"Tobradex",note:"5 uds · CAD 8/27"},{t:"Tobrex colirio",note:"6 uds · CAD 2/27"},
+      {t:"Tobrex pomada",note:"2 uds · CAD 4/27"},{t:"Cetraxal colirio",note:"1 ud · CAD 11/26"},
+      {t:"Terramicina",note:"4 uds · CAD 5/27"},{t:"Amoxicilina / Ác. clavulánico 1 g",note:"79 uds · CAD 9/27"},
+      {t:"Bromuro de ipratropio (aerosol)",note:"4 uds · CAD 4/27"},{t:"Budesonida (aerosol)",note:"4 uds · CAD 1/27"},
+      {t:"Ventolin (aerosol) / salbutamol",note:"3 uds · CAD 9/27"},{t:"Urbason 40 mg",note:"5 uds · CAD 10/27"},
+      {t:"Salbutamol (inhalatorio)",note:"10 uds · CAD 3/27"},{t:"Hidrocortisona 100 mg",note:"40 uds · CAD 11/26"},
+      {t:"Amoxicilina 250 mg (oral)",note:"8 uds · CAD 11/27"}
+    ]}
+  ]},
+  {id:"alm-anestesia",cat:"fung_almacenable",nombre:"Medicación de anestesia",resumen:"Carro / nevera de anestesia",secciones:[
+    {head:"Medicación",icon:"fung",items:[
+      {t:"Ketamina",note:"21 uds"},{t:"Atropina",note:"63 + 40"},{t:"Cloruro cálcico",note:"15 uds"},
+      {t:"Fentanilo 10 ml",note:"5 uds"},{t:"Etomidato",note:"13 uds"},{t:"Bupivacaína 5%",note:"67 uds"},
+      {t:"Xilocaína",note:"1 ud"},{t:"Adrenalina",note:"10 + 15"},{t:"Trandate",note:"5 uds"},
+      {t:"Noradrenalina",note:"6 uds"},{t:"Bicarbonato",note:"4 uds"},{t:"Amiodarona",note:"5 uds"},
+      {t:"Urapidil",note:"8 uds"},{t:"Remifentanilo",note:"2 uds"},{t:"Fentanilo 2 ml",note:"50 uds"},
+      {t:"Rocuronio",note:"2 uds"},{t:"Sugammadex 5 ml",note:"6 uds"},{t:"Sugammadex 2 ml",note:"22 uds"},
+      {t:"Digoxina",note:"8 uds"},{t:"Seguril",note:"20 uds"},{t:"Biocoryl",note:"5 uds"},
+      {t:"Primperan",note:"6 uds"},{t:"Efedrina (1 ml)",note:"30 uds · CAD 12/27"}
+    ]}
+  ]},
+  {id:"alm-oral-1",cat:"fung_almacenable",nombre:"Medicación oral — Bolsa 1",resumen:"Comprimidos y batas",secciones:[
+    {head:"Medicación oral",icon:"fung",items:[
+      {t:"Batas estériles",note:"105 uds"},{t:"Metformina",note:"150 uds · CAD 3/27"},
+      {t:"Cefixima 400 mg",note:"200 uds · CAD 9/27"},{t:"Polaramine",note:"240 uds · CAD 11/27"},
+      {t:"Ibuprofeno 600 mg",note:"1300 uds · CAD 6/28"},{t:"Nolotil",note:"1900 uds · CAD 7/28"},
+      {t:"Omeprazol",note:"300 uds · CAD 2/28"},{t:"Amoxicilina 500 mg",note:"1299 uds · CAD 3/28"},
+      {t:"Polaramine oral",note:"2 uds · CAD 1/28"},{t:"Azitromicina 500",note:"60 uds · CAD 5/29"},
+      {t:"Lacosamida 100 mg",note:"160 uds · CAD 9/29"},{t:"Septrin forte",note:"150 uds · CAD 8/27"},
+      {t:"Formasec",note:"220 uds · CAD 11/26"},{t:"Seguril",note:"60 uds · CAD 7/27"}
+    ]}
+  ]},
+
+  /* ===== FUNGIBLE NO ALMACENABLE (equipos / baúles) ===== */
+  {id:"noalm-baul-0",cat:"fung_noalmacenable",nombre:"Baúl 0 — Focus",resumen:"Equipo",secciones:[
+    {head:"Equipo",icon:"instr",items:["Focus 2 con cables de alimentación"]}
+  ]},
+  {id:"noalm-baul-6",cat:"fung_noalmacenable",nombre:"Baúl 6 — Respirador",resumen:"Equipo",secciones:[
+    {head:"Equipo",icon:"instr",items:["Respirador con alargadera","Tubo con/sin conexión y cable de alimentación"]}
+  ]},
+  {id:"noalm-baul-13",cat:"fung_noalmacenable",nombre:"Baúl 13 — Bisturí blanco",resumen:"Equipo",secciones:[
+    {head:"Equipo",icon:"instr",items:[{t:"Bisturí blanco",note:"1 ud"},{t:"Cable de placas",note:"1 ud"},"Pistola de silicona"]}
+  ]},
+  {id:"noalm-baul-17",cat:"fung_noalmacenable",nombre:"Baúl 17 — Selladora / organización",resumen:"Equipo",secciones:[
+    {head:"Equipo",icon:"instr",items:["Selladora con cable","Cajas organizadoras","Rotulador","Plastilina","Puntas de bisturí eléctrico"]}
+  ]},
+  {id:"noalm-baul-24",cat:"fung_noalmacenable",nombre:"Baúl 24 — Bisturí eléctrico",resumen:"Equipo",secciones:[
+    {head:"Equipo",icon:"instr",items:["Bisturí eléctrico",{t:"Placas de bisturí",note:"178 / 1 con cable"}]}
+  ]},
+  {id:"noalm-baul-28",cat:"fung_noalmacenable",nombre:"Baúl 28 — Ecógrafo",resumen:"Equipo",secciones:[
+    {head:"Equipo",icon:"instr",items:["Ecógrafo","Sondas de ecografía",{t:"Cables de alimentación",note:"+3"},"5 cintas",{t:"Preservativos",note:"14 + gel"},{t:"Pilas normales",note:"6 uds"},{t:"Pilas pequeñas",note:"9 uds"}]}
+  ]},
+  {id:"noalm-baul-29",cat:"fung_noalmacenable",nombre:"Baúl 29 — Respirador 2",resumen:"Equipo",secciones:[
+    {head:"Equipo",icon:"instr",items:["Respirador 2 (mangueras con/sin conexión de O2)","Cable de alimentación","Alargadera"]}
+  ]},
+  {id:"noalm-baul-40",cat:"fung_noalmacenable",nombre:"Baúl 40 — Pedal bisturí",resumen:"Equipo",secciones:[
+    {head:"Equipo",icon:"instr",items:["Pedal de bisturí eléctrico","Cable de alimentación"]}
+  ]},
+  {id:"noalm-cafeteria",cat:"fung_noalmacenable",nombre:"Baúl — Cafetería y varios",resumen:"Avituallamiento",secciones:[
+    {head:"Material",icon:"instr",items:["Cafeteras y hervidor",{t:"Cápsulas de café",note:"117"},{t:"Cucharillas",note:"250"},"Frutos secos"]}
   ]}
 ];
 
@@ -370,11 +462,18 @@ function svgIcon(name,size,sw){
 const API_URL = '/api/protocolos';
 const cloudOn = () => location.protocol.startsWith('http');
 
+const API_CHECKS = '/api/checks';
 const STORE_KEY='cs_protocolos_v3';
+const CHECKS_KEY='cs_checks_v1';
 let DATA = loadData();
+let CHECKS = loadChecks();
 let activeCat = 'quirurgico';
 let admin = sessionStorage.getItem('cs_admin')==='1';
 const PASSWORD='QUIROFANO1';
+const CHECKMARK='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+
+function loadChecks(){try{return JSON.parse(localStorage.getItem(CHECKS_KEY))||{};}catch(e){return {};}}
+function saveChecks(){try{localStorage.setItem(CHECKS_KEY,JSON.stringify(CHECKS));}catch(e){}}
 
 function loadData(){
   let d=null;
@@ -425,13 +524,70 @@ async function initCloud(){
   try{
     const cloud=await cloudLoad();
     if(cloud&&Array.isArray(cloud)&&cloud.length){
+      // Fusiona protocolos/listas base que falten en la nube (p. ej. nuevos añadidos en una versión)
+      const seen=new Set(cloud.map(p=>p.id));let added=false;
+      SEED.forEach(s=>{if(!seen.has(s.id)){cloud.push(JSON.parse(JSON.stringify(s)));added=true;}});
       DATA=cloud; saveData();
+      if(added){try{await cloudSave(DATA);}catch(e){}}
       renderTabs();
       if(viewDetail.style.display==='none'||!viewDetail.style.display)renderList(searchInput.value);
     }else{
       await cloudSave(DATA); // primera vez: sembramos la nube
     }
   }catch(e){ /* sin conexión: seguimos con la copia local */ }
+  // Casillas compartidas
+  try{
+    const remote=await checksLoad();
+    if(remote&&typeof remote==='object'){
+      CHECKS=remote;saveChecks();
+      if(viewDetail.style.display!=='none'&&currentId)openProtocol(currentId,true);
+      else renderList(searchInput.value);
+    }
+  }catch(e){}
+}
+
+/* ----- Casillas (checklist) en la nube ----- */
+async function checksLoad(){
+  const r=await fetch(API_CHECKS,{cache:'no-store'});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  return await r.json();
+}
+async function checksSave(){
+  const r=await fetch(API_CHECKS,{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({checks:CHECKS})});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+}
+function countChecks(p){
+  let total=0,done=0;
+  (p.secciones||[]).forEach((s,si)=>(s.items||[]).forEach((_,ii)=>{total++;if(CHECKS[p.id+':'+si+':'+ii])done++;}));
+  return {total,done};
+}
+async function toggleCheck(key,row){
+  if(CHECKS[key])delete CHECKS[key];else CHECKS[key]=true;
+  row.classList.toggle('on',!!CHECKS[key]);
+  saveChecks();updateProgress();
+  if(cloudOn()){try{await checksSave();}catch(e){toast('Marca guardada en el móvil; sin sincronizar.',false);}}
+}
+function updateProgress(){
+  const el=document.getElementById('chkProgress');if(!el||!currentId)return;
+  const p=DATA.find(x=>x.id===currentId);if(!p)return;
+  const c=countChecks(p);el.textContent=c.done+' / '+c.total+' marcados';
+}
+async function resetChecks(id){
+  const p=DATA.find(x=>x.id===id);if(!p)return;
+  if(!confirm('¿Desmarcar todas las casillas de «'+p.nombre+'»?'))return;
+  (p.secciones||[]).forEach((s,si)=>(s.items||[]).forEach((_,ii)=>{delete CHECKS[p.id+':'+si+':'+ii];}));
+  saveChecks();openProtocol(id,true);
+  if(cloudOn()){try{await checksSave();toast('Casillas desmarcadas',true);}catch(e){}}
+}
+async function refreshChecks(id){
+  try{
+    const remote=await checksLoad();
+    if(remote&&typeof remote==='object'){
+      CHECKS=remote;saveChecks();
+      if(currentId===id&&viewDetail.style.display!=='none')openProtocol(id,true);
+    }
+  }catch(e){}
 }
 
 /* ================= RENDER TABS ================= */
@@ -439,10 +595,11 @@ const tabsEl=document.getElementById('tabs');
 function renderTabs(){
   tabsEl.innerHTML=CATS.map(c=>{
     const n=DATA.filter(p=>p.cat===c.id).length;
+    const word=c.check?'lista':'protocolo';
     return '<div class="tab '+(c.id===activeCat?'active':'')+'" onclick="setCat(\''+c.id+'\')">'+
-      '<span>'+svgIcon(c.icon,22,1.9)+'</span>'+
-      '<span class="t-name">'+escapeHtml(c.nombre)+'</span>'+
-      '<span class="t-count">'+n+' protocolo'+(n===1?'':'s')+'</span></div>';
+      '<span>'+svgIcon(c.icon,20,1.9)+'</span>'+
+      '<span class="t-name">'+escapeHtml(c.corto||c.nombre)+'</span>'+
+      '<span class="t-count">'+n+' '+word+(n===1?'':'s')+'</span></div>';
   }).join('');
 }
 function setCat(id){activeCat=id;renderTabs();renderList(searchInput.value);}
@@ -473,13 +630,16 @@ function renderList(filter){
       : 'Aún no hay protocolos en «'+escapeHtml(catName)+'».'+(admin?'<br>Pulsa «Nuevo protocolo» para añadir uno.':'<br>Desbloquea la edición (candado) para añadir uno.'))+'</div>';
     return;
   }
-  listContainer.innerHTML=items.map(p=>
-    '<div class="card" onclick="openProtocol(\''+p.id+'\')">'+
-      '<div class="icon">'+svgIcon(CATS.find(c=>c.id===p.cat).icon,24,1.8)+'</div>'+
-      '<div class="meta"><h2>'+escapeHtml(p.nombre)+'</h2><p>'+escapeHtml(p.resumen||'')+'</p></div>'+
+  listContainer.innerHTML=items.map(p=>{
+    const cat=CATS.find(c=>c.id===p.cat)||{};
+    let sub=escapeHtml(p.resumen||'');
+    if(cat.check){const c=countChecks(p);sub='<span class="prog">'+c.done+' / '+c.total+' marcados</span>'+(p.resumen?' · '+escapeHtml(p.resumen):'');}
+    return '<div class="card" onclick="openProtocol(\''+p.id+'\')">'+
+      '<div class="icon">'+svgIcon(cat.icon,24,1.8)+'</div>'+
+      '<div class="meta"><h2>'+escapeHtml(p.nombre)+'</h2><p>'+sub+'</p></div>'+
       '<div class="chev"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>'+
-    '</div>'
-  ).join('');
+    '</div>';
+  }).join('');
 }
 
 /* ================= DETALLE ================= */
@@ -489,28 +649,43 @@ const backBtn=document.getElementById('backBtn');
 const brandGroup=document.getElementById('brandGroup');
 let currentId=null;
 
-function openProtocol(id){
+function openProtocol(id,skipRefresh){
   const p=DATA.find(x=>x.id===id);if(!p)return;currentId=id;
-  let html='<div class="detail-title"><div class="dt-main"><h2>'+escapeHtml(p.nombre)+'</h2><div class="op-sub">'+escapeHtml(p.resumen||'')+'</div></div></div>';
-  if(admin){
-    html+='<div class="admin-actions">'+
-      '<button onclick="openEditor(\''+p.id+'\')">'+svgIcon('nota',16,2)+' Editar</button>'+
-      '<button class="del" onclick="deleteProtocol(\''+p.id+'\')">'+
-      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg> Eliminar</button></div>';
+  const cat=CATS.find(c=>c.id===p.cat)||{};
+  const isCheck=!!cat.check;
+  let html='<div class="detail-title"><div class="dt-main"><h2>'+escapeHtml(p.nombre)+'</h2><div class="op-sub">'+escapeHtml(p.resumen||'')+'</div>';
+  if(isCheck){const c=countChecks(p);html+='<div class="chk-progress" id="chkProgress">'+c.done+' / '+c.total+' marcados</div>';}
+  html+='</div></div>';
+  let actions='';
+  if(isCheck){
+    actions+='<button onclick="resetChecks(\''+p.id+'\')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v6h6"/><path d="M3.5 8a9 9 0 1 0 2.3-3.3L3 8"/></svg> Desmarcar todo</button>';
   }
-  (p.secciones||[]).forEach(s=>{
+  if(admin){
+    actions+='<button onclick="openEditor(\''+p.id+'\')">'+svgIcon('nota',16,2)+' Editar</button>'+
+      '<button class="del" onclick="deleteProtocol(\''+p.id+'\')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg> Eliminar</button>';
+  }
+  if(actions)html+='<div class="admin-actions">'+actions+'</div>';
+  (p.secciones||[]).forEach((s,si)=>{
     html+='<div class="section"><div class="section-head"><span>'+svgIcon(s.icon,17,2)+'</span>'+escapeHtml(s.head)+'</div><div class="section-body">';
-    (s.items||[]).forEach(it=>{
+    (s.items||[]).forEach((it,ii)=>{
       const txt=typeof it==='string'?it:it.t;
       const note=typeof it==='object'?it.note:null;
-      html+='<div class="row"><span class="bullet">•</span><span class="txt">'+escapeHtml(txt)+(note?'<span class="note">'+escapeHtml(note)+'</span>':'')+'</span></div>';
+      const noteHtml=note?'<span class="note">'+escapeHtml(note)+'</span>':'';
+      if(isCheck){
+        const key=p.id+':'+si+':'+ii;
+        html+='<div class="row chk'+(CHECKS[key]?' on':'')+'" onclick="toggleCheck(\''+key+'\',this)">'+
+          '<span class="cbox">'+CHECKMARK+'</span><span class="txt">'+escapeHtml(txt)+noteHtml+'</span></div>';
+      }else{
+        html+='<div class="row"><span class="bullet">•</span><span class="txt">'+escapeHtml(txt)+noteHtml+'</span></div>';
+      }
     });
     html+='</div></div>';
   });
-  html+='<div class="disclaimer">Guía de material orientativa para preparación de quirófano. Verifica siempre según cirujano, paciente y disponibilidad del centro.</div>';
+  if(!isCheck)html+='<div class="disclaimer">Guía de material orientativa para preparación de quirófano. Verifica siempre según cirujano, paciente y disponibilidad del centro.</div>';
   html+='<footer>Cirugía Solidaria · Protocolos de quirófano</footer>';
   viewDetail.innerHTML=html;
   showDetail();window.scrollTo(0,0);
+  if(isCheck&&cloudOn()&&!skipRefresh)refreshChecks(id);
 }
 function showDetail(){viewList.style.display='none';viewDetail.style.display='block';backBtn.style.display='flex';brandGroup.style.display='none';}
 function showList(){viewDetail.style.display='none';viewList.style.display='block';backBtn.style.display='none';brandGroup.style.display='flex';renderTabs();renderList(searchInput.value);}

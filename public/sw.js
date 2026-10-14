@@ -1,5 +1,5 @@
 /* Service worker · Protocolos Cirugía Solidaria */
-const CACHE = 'protocolos-cs-v5';
+const CACHE = 'protocolos-cs-v6';
 const ASSETS = [
   './',
   './index.html',
