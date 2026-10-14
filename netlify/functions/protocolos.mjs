@@ -17,7 +17,7 @@ export default async (req) => {
     if (!body || body.password !== PASSWORD) {
       return new Response('Unauthorized', { status: 401 });
     }
-    if (!Array.isArray(body.data)) {
+    if (!body.data || typeof body.data !== 'object') {
       return new Response('Invalid data', { status: 400 });
     }
     await store.setJSON('data', body.data);
